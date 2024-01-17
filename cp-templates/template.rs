@@ -1,3 +1,5 @@
+// @CPGEN_WATERMARK@
+
 use input::*;
 
 @start@gcd

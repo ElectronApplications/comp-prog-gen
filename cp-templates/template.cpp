@@ -1,3 +1,5 @@
+// @CPGEN_WATERMARK@
+
 #include <iostream>
 
 using namespace std;
