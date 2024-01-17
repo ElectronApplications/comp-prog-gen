@@ -20,8 +20,6 @@ fn main() {
     @end@t
 }
 
-
-
 pub mod input {
     use std::{convert::TryFrom, fmt::Debug, io, str::FromStr};
 
