@@ -1,0 +1,87 @@
+#!/bin/python
+
+import os
+import argparse
+
+TEMPLATES_DIRECTORY = os.path.dirname(__file__) + "/cp-templates/"
+MODULE_START_MARKER = "@start@"
+MODULE_END_MARKER = "@end@"
+
+# List the available templates
+templates = os.listdir(TEMPLATES_DIRECTORY)
+
+# Parse the arguments
+parser = argparse.ArgumentParser(prog="contest-gen", description="It generates code from templates 🫠")
+
+parser.add_argument("file_name", type=argparse.FileType("w"), help="The name of a file where code should be generated")
+parser.add_argument("--template", choices=templates, required=False, help="Optionally provide the template you need. By default one with the matching file extension is chosen")
+parser.add_argument("-f", "--flags", nargs="*", default=["t"], required=False, help="Flags used for enabling code modules")
+args = parser.parse_args()
+
+# Load the template
+if args.template is None:
+    file_name = args.file_name.name
+    _, extension = os.path.splitext(file_name)
+    template_name = "template" + extension
+
+    if template_name in templates:
+        with open(TEMPLATES_DIRECTORY + template_name) as input_file:
+            working_template = input_file.readlines()
+    else:
+        print("Unfortunately there is no template with the file extension provided 😥")
+        exit(-1)
+else:
+    with open(TEMPLATES_DIRECTORY + args.template) as input_file:
+        working_template = input_file.readlines()
+
+# Find all of the modules in the template
+module_status = None
+found_modules = []
+
+index = 0
+while index < len(working_template):
+    line = working_template[index].strip()
+    if line.startswith(MODULE_START_MARKER):
+        module_name = line.replace(MODULE_START_MARKER, "")
+        working_template.pop(index)
+        if module_status is None:
+            module_status = (module_name, index)
+        else:
+            print("An error has occured while parsing the template - nested modules are not allowed 🤓")
+            exit(-1)
+    elif line.startswith(MODULE_END_MARKER):
+        module_name = line.replace(MODULE_END_MARKER, "")
+        working_template.pop(index)
+        if module_status is None:
+            print("An error has occured while parsing the template - a module without a starting point has been found 🤯")
+            exit(-1)
+        elif module_status[0] != module_name:
+            print("An error has occured while parsing the template - nested modules are not allowed 🤓")
+            exit(-1)
+        else:
+            found_modules.append((module_name, module_status[1], index))
+            module_status = None
+    else:
+        index += 1
+
+if module_status is not None:
+    print("An error has occured while parsing the template - a module without an ending point has been found 🤯")
+    exit(-1)
+
+# Go through the user provided flags
+for provided_flag in args.flags:
+    matching_flags = [x for x in found_modules if x[0] == provided_flag]
+    found_modules = [x for x in found_modules if x[0] != provided_flag]
+
+    if len(matching_flags) == 0:
+        print(f"Module '{provided_flag}' was not found in the template 🤧")
+        exit(-1)
+
+# Remove all of the unused modules
+for module in reversed(found_modules):
+    working_template = working_template[:module[1]] + working_template[module[2]:]
+
+# Write the template into the file
+with args.file_name as output_file:
+    output_file.write("".join(working_template))
+    print("Code successfully generated 🤩")
