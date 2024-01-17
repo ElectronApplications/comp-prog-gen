@@ -78,8 +78,17 @@ for provided_flag in args.flags:
         exit(-1)
 
 # Remove all of the unused modules
-for module in reversed(found_modules):
-    working_template = working_template[:module[1]] + working_template[module[2]:]
+for module in found_modules:
+    for i in range(module[1], module[2]):
+        working_template[i] = "\n"
+
+# Remove occurences of more than one newline
+index = 1
+while index < len(working_template):
+    if working_template[index - 1].strip() == "" and working_template[index].strip() == "":
+        working_template.pop(index)
+    else:
+        index += 1
 
 # Write the template into the file
 with args.file_name as output_file:
