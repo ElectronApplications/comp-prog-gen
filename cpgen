@@ -13,7 +13,7 @@ WATERMARK_MARKER = "@CPGEN_WATERMARK@"
 templates = os.listdir(TEMPLATES_DIRECTORY)
 
 # Parse the arguments
-parser = argparse.ArgumentParser(prog="contest-gen", description="It generates code from templates 🫠")
+parser = argparse.ArgumentParser(prog="cpgen", description="It generates code from templates 🫠")
 
 parser.add_argument("file_name", type=argparse.FileType("w"), help="The name of a file where code should be generated")
 parser.add_argument("-t", "--template", choices=templates, required=False, help="Optionally provide the template you need. By default one with the matching file extension is chosen")
