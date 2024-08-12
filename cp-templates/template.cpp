@@ -18,7 +18,7 @@ int main() {
     int t;
     cin >> t;
     
-    while(t--) {
+    while(t --> 0) { // t goes to 0
         
     }
     @end@t
